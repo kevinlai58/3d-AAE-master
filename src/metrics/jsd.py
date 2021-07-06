@@ -87,6 +87,7 @@ def jsd_between_point_cloud_sets(sample_pcs, ref_pcs, voxels=28,
         ref_pcs: (np.ndarray S2xR2x3) S2 point-clouds, each of R2 points.
         voxels: (int) grid-resolution. Affects granularity of measurements.
     """
+
     sample_grid_var = _entropy_of_occupancy_grid(sample_pcs, voxels,
                                                  in_unit_sphere)[1]
     ref_grid_var = _entropy_of_occupancy_grid(ref_pcs, voxels,

@@ -1,6 +1,6 @@
 {
     "experiment_name": "experiment",
-    "results_root": "/Git/3d-AAE-master/data/test-results_maxepoch20_3things",
+    "results_root": "/Git/3d-AAE/data/test-results_maxepoch40_1thing",
     "clean_results_dir": false,
 
     "cuda": true,
@@ -12,7 +12,7 @@
     ],
 
     "dataset": "shapenet",
-    "data_dir": "/Git/3d-AAE-master/data/shapenet",
+    "data_dir": "/Git/3d-AAE/data/shapenet",
     "classes": [],
     "shuffle": true,
     "transforms": ["rotate"],

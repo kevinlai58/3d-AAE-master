@@ -8,6 +8,7 @@ print(BASE_DIR)
 
 from myutils.pcutil import plot_3d_point_cloud
 from myutils.util import find_latest_epoch, prepare_results_dir, cuda_setup, setup_logging
+from myutils.h5_loader import load_data_h5, MakeBatchData
 
 import argparse
 import json
@@ -62,26 +63,30 @@ def main(config):
     #
     # Dataset
     #
-    dataset_name = config['dataset'].lower()
-    if dataset_name == 'shapenet':
-        from datasets.shapenet import ShapeNetDataset
-        dataset = ShapeNetDataset(root_dir=config['data_dir'],
-                                  classes=config['classes'])
-    elif dataset_name == 'faust':
-        from datasets.dfaust import DFaustDataset
-        dataset = DFaustDataset(root_dir=config['data_dir'],
-                                classes=config['classes'])
-    else:
-        raise ValueError(f'Invalid dataset name. Expected `shapenet` or '
-                         f'`faust`. Got: `{dataset_name}`')
-    log.debug("Selected {} classes. Loaded {} samples.".format(
-        'all' if not config['classes'] else ','.join(config['classes']),
-        len(dataset)))
+    # dataset_name = config['dataset'].lower()
+    # if dataset_name == 'shapenet':
+    #     from datasets.shapenet import ShapeNetDataset
+    #     dataset = ShapeNetDataset(root_dir=config['data_dir'],
+    #                               classes=config['classes'])
+    # elif dataset_name == 'faust':
+    #     from datasets.dfaust import DFaustDataset
+    #     dataset = DFaustDataset(root_dir=config['data_dir'],
+    #                             classes=config['classes'])
+    # else:
+    #     raise ValueError(f'Invalid dataset name. Expected `shapenet` or '
+    #                      f'`faust`. Got: `{dataset_name}`')
+    # log.debug("Selected {} classes. Loaded {} samples.".format(
+    #     'all' if not config['classes'] else ','.join(config['classes']),
+    #     len(dataset)))
+    #
+    # points_dataloader = DataLoader(dataset, batch_size=config['batch_size'],
+    #                                shuffle=config['shuffle'],
+    #                                num_workers=config['num_workers'],
+    #                                drop_last=True, pin_memory=True)
 
-    points_dataloader = DataLoader(dataset, batch_size=config['batch_size'],
-                                   shuffle=config['shuffle'],
-                                   num_workers=config['num_workers'],
-                                   drop_last=True, pin_memory=True)
+    path = "D:/Git/3d-AAE/data/ScaR_F2P_UNI_2048/"
+    full, partial = load_data_h5(path, "train")
+    batchdatalist = MakeBatchData(full, config['batch_size'])
 
     #
     # Models
@@ -148,12 +153,10 @@ def main(config):
 
         total_loss_d = 0.0
         total_loss_eg = 0.0
-        for i, point_data in enumerate(points_dataloader, 1):
+        for i, point_data in enumerate(batchdatalist):
 
             log.debug('-' * 20)
-
-            X, _ = point_data
-            X = X.to(device)
+            X = point_data.to(device)
 
             # Change dim [BATCH, N_POINTS, N_DIM] -> [BATCH, N_DIM, N_POINTS]
             if X.size(-1) == 3:

@@ -32,6 +32,16 @@ def _get_epochs_by_regex(path, regex):
     return {int(w[:5]) for w in listdir(path) if reg.match(w)}
 
 
+def modifyepoch(epochlist, divisor):
+    sizeoflist = len(epochlist)
+    newepochlist = []
+    for epoch in epochlist:
+        if sizeoflist % divisor == 0:
+            newepochlist.append(epoch)
+        sizeoflist = sizeoflist-1
+    return newepochlist
+
+
 def main(eval_config):
     # Load hyperparameters as they were during training
     train_results_path = join(eval_config['results_root'], eval_config['arch'],
@@ -56,6 +66,7 @@ def main(eval_config):
     e_epochs = _get_epochs_by_regex(weights_path, r'(?P<epoch>\d{5})_E\.pth')
     g_epochs = _get_epochs_by_regex(weights_path, r'(?P<epoch>\d{5})_G\.pth')
     epochs = sorted(e_epochs.intersection(g_epochs))
+    epochs = modifyepoch(epochs,2)
     log.debug(f'Testing epochs: {epochs}')
 
     device = cuda_setup(eval_config['cuda'], eval_config['gpu'])

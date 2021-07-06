@@ -1,6 +1,6 @@
 {
     "experiment_name": "experiment",
-    "results_root": "/Git/3d-AAE-master/data/test-results_maxepoch20_3things",
+    "results_root": "/Git/3d-AAE/data/test-bone",
     "clean_results_dir": false,
 
     "cuda": true,
@@ -12,19 +12,19 @@
     ],
 
     "dataset": "shapenet",
-    "data_dir": "/Git/3d-AAE-master/data/shapenet",
+    "data_dir": "/Git/3d-AAE/data/shapenet",
     "classes": [],
     "shuffle": true,
     "transforms": ["rotate"],
     "num_workers": 1,
     "n_points": 2048,
 
-    "max_epochs": 20,
-    "batch_size": 25,
+    "max_epochs": 2000,
+    "batch_size": 32,
     "gp_lambda": 10,
     "reconstruction_coef": 0.05,
     "z_size": 2048,
-    "distribution": "bernoulli",
+    "distribution": "normal",
 
     "p": 0.2,
     "z_beta_a": 0.01,
@@ -59,7 +59,7 @@
             "hyperparams": {
                 "lr": 0.0005,
                 "weight_decay": 0,
-                "betas": [0.9, 0.999],
+                "betas": [0.5, 0.999],
                 "amsgrad": false
             }
         },
@@ -68,7 +68,7 @@
             "hyperparams": {
                 "lr": 0.0005,
                 "weight_decay": 0,
-                "betas": [0.9, 0.999],
+                "betas": [0.5, 0.999],
                 "amsgrad": false
             }
         }

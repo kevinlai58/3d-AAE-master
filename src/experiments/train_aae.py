@@ -3,6 +3,7 @@ import os
 import sys
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # 当前程序上一级目录，这里为mycompany
 sys.path.append(BASE_DIR)
+print(BASE_DIR)
 ####################################
 
 from myutils.pcutil import plot_3d_point_cloud

@@ -31,7 +31,7 @@ from myutils.plyfile import load_ply
 #     '04554684': 'washer',    '02858304': 'boat',       '02992529': 'cellphone'
 # }
 synth_id_to_category = {
-    '02691156': 'airplane',    '02773838': 'bag',        '02801938': 'basket',
+    '02691156': 'airplane'
 }
 
 
