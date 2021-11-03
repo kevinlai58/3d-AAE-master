@@ -20,7 +20,7 @@
     "n_points": 2048,
 
     "max_epochs": 50000,
-    "batch_size": 32,
+    "batch_size": 105,
     "gp_lambda": 10,
     "reconstruction_coef": 0.05,
     "z_size": 2048,

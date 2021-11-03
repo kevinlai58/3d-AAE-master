@@ -51,28 +51,9 @@ def main(eval_config):
 
     #
     # Dataset
-    #
-    # dataset_name = train_config['dataset'].lower()
-    # if dataset_name == 'shapenet':
-    #     dataset = ShapeNetDataset(root_dir=train_config['data_dir'],
-    #                               classes=train_config['classes'], split='test')
-    # elif dataset_name == 'faust':
-    #     from datasets.dfaust import DFaustDataset
-    #     dataset = DFaustDataset(root_dir=train_config['data_dir'],
-    #                             classes=train_config['classes'], split='test')
-    # elif dataset_name == 'mcgill':
-    #     from datasets.mcgill import McGillDataset
-    #     dataset = McGillDataset(root_dir=train_config['data_dir'],
-    #                             classes=train_config['classes'], split='test')
-    # else:
-    #     raise ValueError(f'Invalid dataset name. Expected `shapenet` or '
-    #                      f'`faust`. Got: `{dataset_name}`')
-    # classes_selected = ('all' if not train_config['classes']
-    #                     else ','.join(train_config['classes']))
-    # log.debug(f'Selected {classes_selected} classes. Loaded {len(dataset)} '
-    #           f'samples.')
 
-    filename = "D:/Git/3d-AAE/data/ScaR_F2P_UNI_2048\\scaphoid_models_aligned_amplified_ratio1.05.h5"
+
+    filename = "D:/Git/3d-AAE/data/ScaR_F2P_UNI_2048\\scaphoid_models_aligned.h5"
     with h5py.File(filename, "r") as f:
         # List all groups
         # print("Keys: %s" % f.keys())
@@ -87,21 +68,9 @@ def main(eval_config):
             normalized_points_list.append(normalized_points)
 
 
-    # path = "D:/Git/3d-AAE/data/ScaR_F2P_UNI_2048/"
-    # X, partial = load_data_h5(path, "valid")
-    #
-    # X = X[0:200]
 
     X = torch.tensor(normalized_points_list).float().to(device)
 
-
-    #
-    # path = "D:/Git/3d-AAE/data/ScaR_F2P_UNI_2048/"
-    # X, partial = load_data_h5(path, "valid")
-    #
-    # X = X[0:200]
-    #
-    # X = torch.tensor(X).to(device)
 
     if 'distribution' in train_config:
         distribution = train_config['distribution']
@@ -128,44 +97,27 @@ def main(eval_config):
     E.eval()
     G.eval()
 
-    num_samples = len(X)
-    # data_loader = DataLoader(dataset, batch_size=num_samples,
-    #                          shuffle=False, num_workers=4,
-    #                          drop_last=False, pin_memory=True)
-
-    # We take 3 times as many samples as there are in test data in order to
-    # perform JSD calculation in the same manner as in the reference publication
-    noise = torch.FloatTensor(3 * num_samples, train_config['z_size'], 1)
-    noise = noise.to(device)
-
-
-    deco="ratio1.5"
-    np.save(join(train_results_path, 'results', f'{epoch:05}_X'), X)
-
-    for i in range(3):
-        if distribution == 'normal':
-            noise.normal_(0, 0.2)
-        else:
-            noise_np = np.random.beta(train_config['z_beta_a'],
-                                      train_config['z_beta_b'],
-                                      noise.shape)
-            noise = torch.tensor(noise_np).float().round().to(device)
-        with torch.no_grad():
-            X_g = G(noise)
-        if X_g.shape[-2:] == (3, 2048):
-            X_g.transpose_(1, 2)
-
-        np.save(join(train_results_path, 'results', f'{epoch:05}_Xg_{i}'), X_g)
-
+    X= X[102:104,:]
     with torch.no_grad():
         z_e = E(X.transpose(1, 2))
         if isinstance(z_e, tuple):
             z_e = z_e[0]
-        X_rec = G(z_e)
-    if X_rec.shape[-2:] == (3, 2048):
-        X_rec.transpose_(1, 2)
+            z_e_0 = torch.reshape(z_e[0], (1, 2048))
+            z_e_1 = torch.reshape(z_e[1], (1, 2048))
 
-    np.save(join(train_results_path, 'results', f'{epoch:05}_Xrec'), X_rec)
+        index = 3
+        z_intertensor = z_e_0
+        for i in range(index):
+            z_mid = z_e[0]*(index-i)/(index+1) + z_e[1]*(i+1)/(index+1)
+            z_mid = torch.reshape(z_mid, (1, 2048))
+            z_intertensor = torch.cat((z_intertensor, z_mid), dim=0)
+        z_intertensor = torch.cat((z_intertensor, z_e_1), dim=0)
+
+        X_inter = G(z_intertensor)
+    if X_inter.shape[-2:] == (3, 2048):
+        X_inter.transpose_(1, 2)
+
+    np.save(join(train_results_path, 'results', f'{epoch:05}_Xg_interpolating'), X_inter)
 
 
 if __name__ == '__main__':
