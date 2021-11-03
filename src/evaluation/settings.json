@@ -18,7 +18,7 @@
     "transforms": ["rotate"],
     "num_workers": 1,
     "n_points": 2048,
-
+    "epoch": 20,
     "max_epochs": 20,
     "batch_size": 25,
     "gp_lambda": 10,

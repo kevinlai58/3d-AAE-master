@@ -7,6 +7,7 @@ from os.path import join
 
 import numpy as np
 import torch
+import h5py
 from torch.distributions import Beta
 from torch.utils.data import DataLoader
 ####################################
@@ -20,7 +21,7 @@ sys.path.append(BASE_DIR)
 # from utils.loggers.basic_logger import setup_logging
 from myutils.util import find_latest_epoch, cuda_setup, setup_logging
 from myutils.h5_loader import load_data_h5, MakeBatchData
-
+from myutils.normalize_points import rescale
 
 def main(eval_config):
     # Load hyperparameters as they were during training
@@ -71,12 +72,36 @@ def main(eval_config):
     # log.debug(f'Selected {classes_selected} classes. Loaded {len(dataset)} '
     #           f'samples.')
 
-    path = "D:/Git/3d-AAE/data/ScaR_F2P_UNI_2048/"
-    X, partial = load_data_h5(path, "valid")
+    filename = "D:/Git/3d-AAE/data/ScaR_F2P_UNI_2048\\scaphoid_models_aligned_amplified_ratio1.05.h5"
+    with h5py.File(filename, "r") as f:
+        # List all groups
+        # print("Keys: %s" % f.keys())
+        a_group_key = list(f.keys())
+        # Get the data
+        faces_list = list(f[a_group_key[0]])
+        points_list = list(f[a_group_key[1]])
 
-    X = X[0:200]
+        normalized_points_list = []
+        for ele in points_list:
+            normalized_points, _ = rescale(ele)
+            normalized_points_list.append(normalized_points)
 
-    X = torch.tensor(X).to(device)
+
+    # path = "D:/Git/3d-AAE/data/ScaR_F2P_UNI_2048/"
+    # X, partial = load_data_h5(path, "valid")
+    #
+    # X = X[0:200]
+
+    X = torch.tensor(normalized_points_list).float().to(device)
+
+
+    #
+    # path = "D:/Git/3d-AAE/data/ScaR_F2P_UNI_2048/"
+    # X, partial = load_data_h5(path, "valid")
+    #
+    # X = X[0:200]
+    #
+    # X = torch.tensor(X).to(device)
 
     if 'distribution' in train_config:
         distribution = train_config['distribution']
@@ -114,7 +139,7 @@ def main(eval_config):
     noise = noise.to(device)
 
 
-
+    deco="ratio1.5"
     np.save(join(train_results_path, 'results', f'{epoch:05}_X'), X)
 
     for i in range(3):

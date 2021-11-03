@@ -86,6 +86,7 @@ def main(eval_config):
     E = arch.Encoder(train_config).to(device)
     G = arch.Generator(train_config).to(device)
 
+
     #
     # Load saved state
     #

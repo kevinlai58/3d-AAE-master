@@ -193,6 +193,11 @@ def main(config):
             # EG part of training
             X_rec = G(codes)
 
+            test = reconstruction_loss(X.permute(0, 2, 1) + 0.5,
+                                    X_rec.permute(0, 2, 1) + 0.5).item()
+            test2 = torch.mean(reconstruction_loss(X.permute(0, 2, 1) + 0.5,
+                                       X_rec.permute(0, 2, 1) + 0.5)).item()
+
             loss_e = torch.mean(
                 config['reconstruction_coef'] *
                 reconstruction_loss(X.permute(0, 2, 1) + 0.5,
@@ -224,7 +229,6 @@ def main(config):
             f'Loss_EG: {total_loss_eg / i:.4f} '
             f'Time: {datetime.now() - start_epoch_time}'
         )
-
         #
         # Save intermediate results
         #
